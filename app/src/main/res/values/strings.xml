@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">FicBot Chatbot</string>
     <string name="what_s_on_your_mind">Enter your query</string>
+
+    <!-- Fragment texts -->
+    <string name="first_fragment">Hello, My name is Ficbot.\n Do you feel like making money while you are asleep?</string>
+    <string name="second_fragment">FicBot transfers your money between your accounts so you can get the maximum interest rate.</string>
+    <string name="third_fragment">Start making money now! What do you say?</string>
+    <string name="let_s_do_it">Let\'s do it!</string>
+
+
 </resources>
