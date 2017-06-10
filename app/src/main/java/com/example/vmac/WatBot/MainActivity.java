@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText inputMessage;
     private ImageButton btnSend;
     private ImageButton btnRecord;
-    private Map<String,Object> context = new HashMap<>();
+    private Map<String, Object> context = new HashMap<>();
     StreamPlayer streamPlayer;
     private boolean initialRequest;
     private boolean permissionToRecordAccepted = false;
@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
     private String TTS_password;
     private String analytics_APIKEY;
     private SpeakerLabelsDiarization.RecoTokens recoTokens;
-
 
 
     @Override
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
         inputMessage = (EditText) findViewById(R.id.message);
         btnSend = (ImageButton) findViewById(R.id.btn_send);
-        btnRecord= (ImageButton) findViewById(R.id.btn_record);
+        btnRecord = (ImageButton) findViewById(R.id.btn_record);
         String customFont = "Montserrat-Regular.ttf";
         Typeface typeface = Typeface.createFromAsset(getAssets(), customFont);
         inputMessage.setTypeface(typeface);
@@ -176,9 +175,9 @@ public class MainActivity extends AppCompatActivity {
                         Message audioMessage;
                         try {
 
-                            audioMessage =(Message) messageArrayList.get(position);
+                            audioMessage = (Message) messageArrayList.get(position);
                             streamPlayer = new StreamPlayer();
-                            if(audioMessage != null && !audioMessage.getMessage().isEmpty())
+                            if (audioMessage != null && !audioMessage.getMessage().isEmpty())
                                 //Change the Voice format and choose from the available choices
                                 streamPlayer.playStream(textToSpeech.synthesize(audioMessage.getMessage(), Voice.EN_LISA).execute());
                             else
@@ -199,29 +198,32 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
 
-        btnSend.setOnClickListener(new View.OnClickListener(){
+        btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkInternetConnection()) {
+                if (checkInternetConnection()) {
                     sendMessage();
                 }
             }
         });
 
         btnRecord.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 recordMessage();
             }
         });
-    };
+    }
+
+    ;
 
     // Speech-to-Text Record Audio permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_RECORD_AUDIO_PERMISSION:
-                permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
             case RECORD_REQUEST_CODE: {
 
@@ -236,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        if (!permissionToRecordAccepted ) finish();
+        if (!permissionToRecordAccepted) finish();
 
     }
 
@@ -250,28 +252,26 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessage() {
 
         final String inputmessage = this.inputMessage.getText().toString().trim();
-        if(!this.initialRequest) {
+        if (!this.initialRequest) {
             Message inputMessage = new Message();
             inputMessage.setMessage(inputmessage);
             inputMessage.setId("1");
             messageArrayList.add(inputMessage);
             myLogger.info("Sending a message to Watson Conversation Service");
 
-        }
-        else
-        {
+        } else {
             Message inputMessage = new Message();
             inputMessage.setMessage(inputmessage);
             inputMessage.setId("100");
             this.initialRequest = false;
-            Toast.makeText(getApplicationContext(),"Tap on the message for Voice",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Tap on the message for Voice", Toast.LENGTH_LONG).show();
 
         }
 
         this.inputMessage.setText("");
         mAdapter.notifyDataSetChanged();
 
-        Thread thread = new Thread(new Runnable(){
+        Thread thread = new Thread(new Runnable() {
             public void run() {
                 try {
 
@@ -281,31 +281,30 @@ public class MainActivity extends AppCompatActivity {
                     MessageResponse response = service.message(workspace_id, newMessage).execute();
 
                     //Passing Context of last conversation
-                    if(response.getContext() !=null)
-                    {
+                    if (response.getContext() != null) {
                         context.clear();
                         context = response.getContext();
 
                     }
-                    Message outMessage=new Message();
-                    if(response!=null)
-                    {
-                        if(response.getOutput()!=null && response.getOutput().containsKey("text"))
-                        {
+                    if (response != null) {
+                        if (response.getOutput() != null && response.getOutput().containsKey("text")) {
 
                             ArrayList responseList = (ArrayList) response.getOutput().get("text");
-                            if(null !=responseList && responseList.size()>0){
-                                outMessage.setMessage((String)responseList.get(0));
-                                outMessage.setId("2");
+                            if (null != responseList && responseList.size() > 0) {
+                                for (int i =0; i<responseList.size(); i++){
+                                    Message outMessage = new Message();
+                                    outMessage.setMessage((String) responseList.get(i));
+                                    outMessage.setId("2");
+                                    messageArrayList.add(outMessage);
+                                }
                             }
-                            messageArrayList.add(outMessage);
                         }
 
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 mAdapter.notifyDataSetChanged();
                                 if (mAdapter.getItemCount() > 1) {
-                                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount()-1);
+                                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, mAdapter.getItemCount() - 1);
 
                                 }
 
@@ -331,10 +330,11 @@ public class MainActivity extends AppCompatActivity {
         speechService.setUsernameAndPassword(STT_username, STT_password);
 
 
-        if(listening != true) {
+        if (listening != true) {
             capture = new MicrophoneInputStream(true);
             new Thread(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     try {
                         speechService.recognizeUsingWebSocket(capture, getRecognizeOptions(), new MicrophoneRecognizeDelegate());
                     } catch (Exception e) {
@@ -343,13 +343,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).start();
             listening = true;
-            Toast.makeText(MainActivity.this,"Listening....Click to Stop", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Listening....Click to Stop", Toast.LENGTH_LONG).show();
 
         } else {
             try {
                 capture.close();
                 listening = false;
-                Toast.makeText(MainActivity.this,"Stopped Listening....Click to Start", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Stopped Listening....Click to Start", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -359,22 +359,22 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Check Internet Connection
+     *
      * @return
      */
     private boolean checkInternetConnection() {
         // get Connectivity Manager object to check connection
         ConnectivityManager cm =
-                (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
 
         // Check for network connections
-        if (isConnected){
+        if (isConnected) {
             return true;
-        }
-        else {
+        } else {
             Toast.makeText(this, " No Internet Connection available ", Toast.LENGTH_LONG).show();
             return false;
         }
@@ -407,22 +407,25 @@ public class MainActivity extends AppCompatActivity {
 
 
             }*/
-            if(speechResults.getResults() != null && !speechResults.getResults().isEmpty()) {
+            if (speechResults.getResults() != null && !speechResults.getResults().isEmpty()) {
                 String text = speechResults.getResults().get(0).getAlternatives().get(0).getTranscript();
                 showMicText(text);
             }
         }
 
-        @Override public void onConnected() {
+        @Override
+        public void onConnected() {
 
         }
 
-        @Override public void onError(Exception e) {
+        @Override
+        public void onError(Exception e) {
             showError(e);
             enableMicButton();
         }
 
-        @Override public void onDisconnected() {
+        @Override
+        public void onDisconnected() {
             enableMicButton();
         }
 
@@ -444,7 +447,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showMicText(final String text) {
         runOnUiThread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 inputMessage.setText(text);
             }
         });
@@ -452,7 +456,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void enableMicButton() {
         runOnUiThread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 btnRecord.setEnabled(true);
             }
         });
@@ -460,13 +465,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showError(final Exception e) {
         runOnUiThread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
         });
     }
-
 
 
 }

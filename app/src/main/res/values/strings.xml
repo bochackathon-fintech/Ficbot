@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">FicBot Chatbot</string>
-    <string name="what_s_on_your_mind">Enter your query</string>
+    <string name="what_s_on_your_mind">Speak to FicBot</string>
 </resources>
