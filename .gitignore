@@ -55,4 +55,4 @@ src/main/res/drawable-w10dp/
 build
 chatbot-watson-android.iml
 local.properties
-.idea
+.idea/
