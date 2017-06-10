@@ -1,10 +1,14 @@
 package com.example.vmac.WatBot.intro;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.example.vmac.WatBot.MainActivity;
 import com.example.vmac.WatBot.R;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
@@ -15,6 +19,15 @@ public class IntroActivity extends AppIntro {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        int loggedin = sharedPref.getInt("loggedin", 0);
+
+        if (loggedin == 1){
+            Intent i = new Intent(this, MainActivity.class);
+            finish();  //Kill the activity from which you will go to next activity
+            startActivity(i);
+        }
 
         // Note here that we DO NOT use setContentView();
 

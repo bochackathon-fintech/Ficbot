@@ -20,6 +20,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.vmac.WatBot.BocAPI.BankOfCyprus;
+import com.example.vmac.WatBot.BocAPI.HttpClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.Analytics;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        HttpClient accounts = BankOfCyprus.getAccounts();
 
         mContext = getApplicationContext();
         conversation_username = mContext.getString(R.string.conversation_username);
@@ -248,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Sending a message to Watson Conversation Service
     private void sendMessage() {
-
         final String inputmessage = this.inputMessage.getText().toString().trim();
         if(!this.initialRequest) {
             Message inputMessage = new Message();
@@ -287,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
                         context = response.getContext();
 
                     }
-                    Message outMessage=new Message();
                     if(response!=null)
                     {
                         if(response.getOutput()!=null && response.getOutput().containsKey("text"))
@@ -295,10 +296,15 @@ public class MainActivity extends AppCompatActivity {
 
                             ArrayList responseList = (ArrayList) response.getOutput().get("text");
                             if(null !=responseList && responseList.size()>0){
-                                outMessage.setMessage((String)responseList.get(0));
-                                outMessage.setId("2");
+                                for (int i=0;i<responseList.size();i++){
+                                    Message outMessage=new Message();
+
+                                    outMessage.setMessage((String)responseList.get(i));
+                                    outMessage.setId("2");
+
+                                    messageArrayList.add(outMessage);
+                                }
                             }
-                            messageArrayList.add(outMessage);
                         }
 
                         runOnUiThread(new Runnable() {

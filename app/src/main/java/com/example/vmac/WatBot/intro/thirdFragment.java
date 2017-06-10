@@ -1,6 +1,8 @@
 package com.example.vmac.WatBot.intro;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -67,6 +69,11 @@ public class thirdFragment extends Fragment {
     }
 
     private void openChatBot(View v) {
+
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("loggedin", 1);
+        editor.commit();
 
         Intent i = new Intent(getContext(), MainActivity.class);
         getActivity().finish();  //Kill the activity from which you will go to next activity
