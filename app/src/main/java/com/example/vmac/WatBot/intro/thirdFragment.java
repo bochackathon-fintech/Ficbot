@@ -39,6 +39,8 @@ public class thirdFragment extends Fragment {
         View v = inflater.inflate(R.layout.thirdfragment, container, false);
 
         Button b = (Button) v.findViewById(R.id.third_fragment_action_button);
+        final Button login = (Button) v.findViewById(R.id.thirdfragment_login);
+        final LinearLayout layout = (LinearLayout) v.findViewById(R.id.registerform);
 
         b.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,12 +48,12 @@ public class thirdFragment extends Fragment {
                 switch (v.getId()) {
                     case R.id.third_fragment_action_button:
                         hideScreenAndShowRegistration(v);
+                        login.setVisibility(View.VISIBLE);
+                        layout.setVisibility(View.VISIBLE);
                         break;
                 }
             }
         });
-
-        Button login = (Button) v.findViewById(R.id.thirdfragment_login);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
