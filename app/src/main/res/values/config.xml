@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Watson Conversation Service Credentials --> 
-    <string name="workspace_id">0234ae40-63af-40a9-9b21-ccf612f1430b</string> 
+    <string name="workspace_id">695140a1-87fb-4df4-9b4d-1dad12daa758</string> 
     <string name="conversation_username">acca3f74-36f3-4a11-a767-1c54d9c2c69c</string> 
     <string name="conversation_password">YyU0j7cF6XbJ</string>  
 
