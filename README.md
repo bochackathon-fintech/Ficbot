@@ -49,7 +49,7 @@ Before you can start using the Conversation service, log in to IBM® Bluemix® a
 <ol>
  	<li>Log in to Bluemix and navigate to the Conversation service:
 <ul>
- 	<li>Don’t have Bluemix account? <a title="(Opens in a new tab or window)" href="https://console.ng.bluemix.net/registration/?target=/catalog/services/conversation/" target="_blank">Sign up</a> to create a free trial account.</li>
+ 	<li>Don’t have Bluemix account? <a title="(Opens in a new tab or window)" href="https://console.ng.bluemix.net/com.example.vmac.WatBot.registration/?target=/catalog/services/conversation/" target="_blank">Sign up</a> to create a free trial account.</li>
  	<li>Have a Bluemix account? Use <a title="(Opens in a new tab or window)" href="https://console.ng.bluemix.net/catalog/services/conversation" target="_blank">this link</a>.</li>
 </ul>
 </li>
