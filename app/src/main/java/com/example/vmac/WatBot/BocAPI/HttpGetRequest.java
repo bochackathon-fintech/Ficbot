@@ -81,7 +81,7 @@ public class HttpGetRequest extends AsyncTask<String, Void, String> {
             e.printStackTrace();
             result = null;
         }
-        Log.d("APOEL", result);
+
         return result;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.vmac.WatBot.BocAPI;
 
+import android.content.Context;
 
 public class HttpClient {
 

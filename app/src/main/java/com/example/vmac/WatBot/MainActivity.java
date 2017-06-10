@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.vmac.WatBot.BocAPI.BankOfCyprus;
 import com.example.vmac.WatBot.BocAPI.HttpClient;
+import com.example.vmac.WatBot.BocAPI.HttpPostRequest;
 import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.Analytics;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -252,6 +253,11 @@ public class MainActivity extends AppCompatActivity {
     // Sending a message to Watson Conversation Service
     private void sendMessage() {
         final String inputmessage = this.inputMessage.getText().toString().trim();
+
+        if (inputmessage.contains("$") || inputmessage.contains("€")){
+            return;
+        }
+
         if(!this.initialRequest) {
             Message inputMessage = new Message();
             inputMessage.setMessage(inputmessage);
@@ -474,8 +480,67 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void transferMoneyToSavings(){
 
+        String endpoint = "";
+        Map<String,String> params = new HashMap<>();
+        params.put("Content-Type", "application/json");
+        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
+
+        JSONObject jsonObject = new JSONObject(params);
+
+        HttpPostRequest httpPostRequest = new HttpPostRequest();
+
+        httpPostRequest.post(endpoint, this.getApplicationContext(), jsonObject);
+    }
+
+
+    private void transferMoneyToCurrent(){
+
+        String endpoint = "";
+        Map<String,String> params = new HashMap<>();
+        params.put("Content-Type", "application/json");
+        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
+
+        JSONObject jsonObject = new JSONObject(params);
+
+        HttpPostRequest httpPostRequest = new HttpPostRequest();
+
+        httpPostRequest.post(endpoint, this.getApplicationContext(), jsonObject);
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
