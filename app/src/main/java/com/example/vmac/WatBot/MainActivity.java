@@ -108,11 +108,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Response response) {
                 // Handle Analytics send success here.
+                response.getStatus();
             }
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 // Handle Analytics send failure here.
+                response.getStatus();
             }
         });
 
@@ -121,11 +123,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Response response) {
                 // Handle Logger send success here.
+                response.getStatus();
             }
 
             @Override
             public void onFailure(Response response, Throwable throwable, JSONObject jsonObject) {
                 // Handle Logger send failure here.
+                response.getStatus();
             }
         });
 
