@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Message> messageArrayList;
     private EditText inputMessage;
     private ImageButton btnSend;
-    private ImageButton btnRecord;
     private Map<String, Object> context = new HashMap<>();
     StreamPlayer streamPlayer;
     private boolean initialRequest;
@@ -131,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
         inputMessage = (EditText) findViewById(R.id.message);
         btnSend = (ImageButton) findViewById(R.id.btn_send);
-        btnRecord = (ImageButton) findViewById(R.id.btn_record);
         String customFont = "Montserrat-Regular.ttf";
         Typeface typeface = Typeface.createFromAsset(getAssets(), customFont);
         inputMessage.setTypeface(typeface);
@@ -165,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
     private void sendMessage() {
         final String inputmessage = this.inputMessage.getText().toString().trim();
 
-        if (inputmessage.contains("$") || inputmessage.contains("€")){
+        if (inputmessage.contains("$") || inputmessage.contains("€")) {
             Message userMessage = new Message();
             userMessage.setMessage(inputmessage);
             userMessage.setId("1");
@@ -182,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             messageArrayList.add(botMessage);
             myLogger.info("Sending a message to Watson Conversation Service");
 
-        }else {
+        } else {
 
             if (!this.initialRequest) {
                 Message inputMessage = new Message();
@@ -196,8 +194,6 @@ public class MainActivity extends AppCompatActivity {
                 inputMessage.setMessage(inputmessage);
                 inputMessage.setId("100");
                 this.initialRequest = false;
-//            Toast.makeText(getApplicationContext(), "Tap on the message for Voice", Toast.LENGTH_LONG).show();
-
             }
         }
 
@@ -219,17 +215,15 @@ public class MainActivity extends AppCompatActivity {
                         context = response.getContext();
 
                     }
-                    if(response!=null)
-                    {
-                        if(response.getOutput()!=null && response.getOutput().containsKey("text"))
-                        {
+                    if (response != null) {
+                        if (response.getOutput() != null && response.getOutput().containsKey("text")) {
 
                             ArrayList responseList = (ArrayList) response.getOutput().get("text");
-                            if(null !=responseList && responseList.size()>0){
-                                for (int i=0;i<responseList.size();i++){
-                                    Message outMessage=new Message();
+                            if (null != responseList && responseList.size() > 0) {
+                                for (int i = 0; i < responseList.size(); i++) {
+                                    Message outMessage = new Message();
 
-                                    outMessage.setMessage((String)responseList.get(i));
+                                    outMessage.setMessage((String) responseList.get(i));
                                     outMessage.setId("2");
 
                                     messageArrayList.add(outMessage);
@@ -262,9 +256,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean scheduledForNow() {
-        List<Message> temp = messageArrayList.subList(messageArrayList.size()-3, messageArrayList.size());
-        for(int i = 0; i < temp.size(); i++){
-            if(temp.get(i).getMessage().contains("now")){
+        List<Message> temp = messageArrayList.subList(messageArrayList.size() - 3, messageArrayList.size());
+        for (int i = 0; i < temp.size(); i++) {
+            if (temp.get(i).getMessage().contains("now")) {
                 return true;
             }
         }
@@ -310,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private String transferMoneyToSavings(Long money, boolean now){
+    private String transferMoneyToSavings(Long money, boolean now) {
 
         return bank.transferMoneyToSavings(money, now);
 //        Map<String,String> params = new HashMap<>();
