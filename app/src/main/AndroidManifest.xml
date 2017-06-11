@@ -25,7 +25,7 @@
             android:theme="@style/SplashTheme">>
         </activity>
         <activity android:name="com.example.vmac.WatBot.intro.IntroActivity"
-            android:label="Intro">
+            android:label="FicBot">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
