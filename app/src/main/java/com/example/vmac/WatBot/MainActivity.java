@@ -1,15 +1,11 @@
 package com.example.vmac.WatBot;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,9 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.vmac.WatBot.BocAPI.BankOfCyprus;
-import com.example.vmac.WatBot.BocAPI.HttpClient;
-import com.example.vmac.WatBot.BocAPI.HttpPostRequest;
+import com.example.vmac.WatBot.Data.Bank;
 import com.ibm.mobilefirstplatform.clientsdk.android.analytics.api.Analytics;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.BMSClient;
 import com.ibm.mobilefirstplatform.clientsdk.android.core.api.Response;
@@ -36,17 +30,13 @@ import com.ibm.watson.developer_cloud.conversation.v1.model.MessageRequest;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.SpeechToText;
 import com.ibm.watson.developer_cloud.speech_to_text.v1.model.RecognizeOptions;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeakerLabel;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.model.SpeechResults;
-import com.ibm.watson.developer_cloud.speech_to_text.v1.websocket.RecognizeCallback;
 import com.ibm.watson.developer_cloud.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.developer_cloud.text_to_speech.v1.model.Voice;
-
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -55,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ChatAdapter mAdapter;
-    private ArrayList messageArrayList;
+    private ArrayList<Message> messageArrayList;
     private EditText inputMessage;
     private ImageButton btnSend;
     private ImageButton btnRecord;
@@ -81,13 +71,16 @@ public class MainActivity extends AppCompatActivity {
     private String TTS_password;
     private String analytics_APIKEY;
     private SpeakerLabelsDiarization.RecoTokens recoTokens;
+    Bank bank;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        HttpClient accounts = BankOfCyprus.getAccounts();
+//        HttpClient accounts = BankOfCyprus.getAccounts();
+
+        bank = new Bank();
 
         mContext = getApplicationContext();
         conversation_username = mContext.getString(R.string.conversation_username);
@@ -157,51 +150,6 @@ public class MainActivity extends AppCompatActivity {
         sendMessage();
 
 
-        //Watson Text-to-Speech Service on Bluemix
-        textToSpeech = new TextToSpeech();
-        textToSpeech.setUsernameAndPassword(TTS_username, TTS_password);
-
-
-        int permission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission to record denied");
-            makeRequest();
-        }
-
-
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new ClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
-                Thread thread = new Thread(new Runnable() {
-                    public void run() {
-                        Message audioMessage;
-                        try {
-
-                            audioMessage = (Message) messageArrayList.get(position);
-                            streamPlayer = new StreamPlayer();
-                            if (audioMessage != null && !audioMessage.getMessage().isEmpty())
-                                //Change the Voice format and choose from the available choices
-                                streamPlayer.playStream(textToSpeech.synthesize(audioMessage.getMessage(), Voice.EN_LISA).execute());
-                            else
-                                streamPlayer.playStream(textToSpeech.synthesize("No Text Specified", Voice.EN_LISA).execute());
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                thread.start();
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                recordMessage();
-
-            }
-        }));
-
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,45 +159,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recordMessage();
-            }
-        });
-    }
-
-    ;
-
-    // Speech-to-Text Record Audio permission
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST_RECORD_AUDIO_PERMISSION:
-                permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                break;
-            case RECORD_REQUEST_CODE: {
-
-                if (grantResults.length == 0
-                        || grantResults[0] !=
-                        PackageManager.PERMISSION_GRANTED) {
-
-                    Log.i(TAG, "Permission has been denied by user");
-                } else {
-                    Log.i(TAG, "Permission has been granted by user");
-                }
-                return;
-            }
-        }
-        if (!permissionToRecordAccepted) finish();
-
-    }
-
-    protected void makeRequest() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.RECORD_AUDIO},
-                RECORD_REQUEST_CODE);
     }
 
     // Sending a message to Watson Conversation Service
@@ -257,23 +166,39 @@ public class MainActivity extends AppCompatActivity {
         final String inputmessage = this.inputMessage.getText().toString().trim();
 
         if (inputmessage.contains("$") || inputmessage.contains("€")){
-            return;
-        }
-
-        if (!this.initialRequest) {
-            Message inputMessage = new Message();
-            inputMessage.setMessage(inputmessage);
-            inputMessage.setId("1");
-            messageArrayList.add(inputMessage);
+            Message userMessage = new Message();
+            userMessage.setMessage(inputmessage);
+            userMessage.setId("1");
+            messageArrayList.add(userMessage);
             myLogger.info("Sending a message to Watson Conversation Service");
 
-        } else {
-            Message inputMessage = new Message();
-            inputMessage.setMessage(inputmessage);
-            inputMessage.setId("100");
-            this.initialRequest = false;
-            Toast.makeText(getApplicationContext(), "Tap on the message for Voice", Toast.LENGTH_LONG).show();
+            Long money = Long.valueOf(inputmessage.substring(1)); //remove the currency sign
 
+            String transaction_message = transferMoneyToSavings(money, scheduledForNow());
+
+            Message botMessage = new Message();
+            botMessage.setMessage(transaction_message);
+            botMessage.setId("100");
+            messageArrayList.add(botMessage);
+            myLogger.info("Sending a message to Watson Conversation Service");
+
+        }else {
+
+            if (!this.initialRequest) {
+                Message inputMessage = new Message();
+                inputMessage.setMessage(inputmessage);
+                inputMessage.setId("1");
+                messageArrayList.add(inputMessage);
+                myLogger.info("Sending a message to Watson Conversation Service");
+
+            } else {
+                Message inputMessage = new Message();
+                inputMessage.setMessage(inputmessage);
+                inputMessage.setId("100");
+                this.initialRequest = false;
+//            Toast.makeText(getApplicationContext(), "Tap on the message for Voice", Toast.LENGTH_LONG).show();
+
+            }
         }
 
         this.inputMessage.setText("");
@@ -326,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 } catch (Exception e) {
+                    Log.d("APOELIN", e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -335,39 +261,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //Record a message via Watson Speech to Text
-    private void recordMessage() {
-        //mic.setEnabled(false);
-        speechService = new SpeechToText();
-        speechService.setUsernameAndPassword(STT_username, STT_password);
-
-
-        if (listening != true) {
-            capture = new MicrophoneInputStream(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        speechService.recognizeUsingWebSocket(capture, getRecognizeOptions(), new MicrophoneRecognizeDelegate());
-                    } catch (Exception e) {
-                        showError(e);
-                    }
-                }
-            }).start();
-            listening = true;
-            Toast.makeText(MainActivity.this, "Listening....Click to Stop", Toast.LENGTH_LONG).show();
-
-        } else {
-            try {
-                capture.close();
-                listening = false;
-                Toast.makeText(MainActivity.this, "Stopped Listening....Click to Start", Toast.LENGTH_LONG).show();
-            } catch (Exception e) {
-                e.printStackTrace();
+    private boolean scheduledForNow() {
+        List<Message> temp = messageArrayList.subList(messageArrayList.size()-3, messageArrayList.size());
+        for(int i = 0; i < temp.size(); i++){
+            if(temp.get(i).getMessage().contains("now")){
+                return true;
             }
-
         }
+        return false;
     }
+
 
     /**
      * Check Internet Connection
@@ -406,115 +309,36 @@ public class MainActivity extends AppCompatActivity {
                 .build();
     }
 
-    //Watson Speech to Text Methods.
-    private class MicrophoneRecognizeDelegate implements RecognizeCallback {
-        @Override
-        public void onTranscription(SpeechResults speechResults) {
-            //TODO: Uncomment this to enable Speaker Diarization
-            /*recoTokens = new SpeakerLabelsDiarization.RecoTokens();
-            if(speechResults.getSpeakerLabels() !=null)
-            {
-                recoTokens.add(speechResults);
-                Log.i("SPEECHRESULTS",speechResults.getSpeakerLabels().get(0).toString());
 
+    private String transferMoneyToSavings(Long money, boolean now){
 
-            }*/
-            if (speechResults.getResults() != null && !speechResults.getResults().isEmpty()) {
-                String text = speechResults.getResults().get(0).getAlternatives().get(0).getTranscript();
-                showMicText(text);
-            }
-        }
+        return bank.transferMoneyToSavings(money, now);
+//        Map<String,String> params = new HashMap<>();
+//
+//        params.put("Content-Type", "application/json");
+//        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
+//
+//        JSONObject jsonObject = new JSONObject(params);
 
-        @Override
-        public void onConnected() {
-
-        }
-
-        @Override
-        public void onError(Exception e) {
-            showError(e);
-            enableMicButton();
-        }
-
-        @Override
-        public void onDisconnected() {
-            enableMicButton();
-        }
-
-        @Override
-        public void onInactivityTimeout(RuntimeException runtimeException) {
-
-        }
-
-        @Override
-        public void onListening() {
-
-        }
-
-        @Override
-        public void onTranscriptionComplete() {
-
-        }
+//        HttpPostRequest httpPostRequest = new HttpPostRequest();
+//
+//        httpPostRequest.post(this.getApplicationContext(), jsonObject);
     }
 
-    private void showMicText(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                inputMessage.setText(text);
-            }
-        });
-    }
-
-    private void enableMicButton() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                btnRecord.setEnabled(true);
-            }
-        });
-    }
-
-    private void showError(final Exception e) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-        });
-    }
-
-
-    private void transferMoneyToSavings(){
-
-        String endpoint = "";
-        Map<String,String> params = new HashMap<>();
-        params.put("Content-Type", "application/json");
-        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
-
-        JSONObject jsonObject = new JSONObject(params);
-
-        HttpPostRequest httpPostRequest = new HttpPostRequest();
-
-        httpPostRequest.post(endpoint, this.getApplicationContext(), jsonObject);
-    }
-
-
-    private void transferMoneyToCurrent(){
-
-        String endpoint = "";
-        Map<String,String> params = new HashMap<>();
-        params.put("Content-Type", "application/json");
-        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
-
-        JSONObject jsonObject = new JSONObject(params);
-
-        HttpPostRequest httpPostRequest = new HttpPostRequest();
-
-        httpPostRequest.post(endpoint, this.getApplicationContext(), jsonObject);
-
-    }
+//    private void transferMoneyToCurrent(Integer amount){
+//
+//        Map<String,String> params = new HashMap<>();
+//        params.put("Content-Type", "application/json");
+//        params.put("Track-ID", "bedad676-ab4d-5671-34bd-79c7b0c8443e");
+//
+//        JSONObject jsonObject = new JSONObject(params);
+//
+//        BankOfCyprus.transferMoneyToSavings(getApplicationContext(), amount);
+//        HttpPostRequest httpPostRequest = new HttpPostRequest();
+//
+//        httpPostRequest.post(this.getApplicationContext(), jsonObject);
+//
+//    }
 }
 
 
