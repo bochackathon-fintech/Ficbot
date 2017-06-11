@@ -13,16 +13,17 @@
 
     <ImageView
         android:id="@+id/third_fragment_image"
-        android:layout_width="164dp"
-        android:layout_height="183dp"
+        android:layout_width="154dp"
+        android:layout_height="190dp"
         android:contentDescription=""
-        app:srcCompat="@drawable/bot_icon" />
+        app:srcCompat="@drawable/user" />
 
     <TextView
         android:id="@+id/third_fragment_textview"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="@string/third_fragment"
+        android:textStyle="bold"
         android:textAlignment="center"
         android:textAppearance="@style/AppIntroDefaultHeading" />
 
@@ -30,6 +31,8 @@
         android:id="@+id/third_fragment_action_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:textColor="#fff"
         android:text="@string/let_s_do_it" />
 
     <LinearLayout
@@ -51,6 +54,7 @@
                 android:layout_weight="1"
                 android:inputType="textPersonName"
                 android:text="Name: "
+                android:textStyle="bold"
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/AppIntroDefaultHeading"/>
 
@@ -76,6 +80,7 @@
                 android:layout_weight="1"
                 android:inputType="textPersonName"
                 android:text="Phone: "
+                android:textStyle="bold"
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/AppIntroDefaultHeading"/>
 
@@ -102,6 +107,8 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="Login"
+                android:background="@color/blue"
+                android:textColor="#fff"
                 android:textAlignment="center"/>
 
         </LinearLayout>
